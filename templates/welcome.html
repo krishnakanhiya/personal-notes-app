@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Notes // Welcome</title>
+    <style>
+        :root {
+            --bg-core: #030712;
+            --neon-cyan: #38bdf8;
+            --neon-cyan-glow: rgba(56, 189, 248, 0.55);
+            --neon-magenta: #ec4899;
+            --neon-purple: #8b5cf6;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Courier New", Courier, monospace, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-core);
+            background-image: 
+                radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.16), transparent 65%),
+                linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+            background-size: 100% 100%, 36px 36px, 36px 36px;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        /* =========================================
+           FLOATING HOLOGRAPHIC NOTES BACKGROUND
+           ========================================= */
+        .notes-stage {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .floating-note {
+            position: absolute;
+            width: 120px;
+            height: 150px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 8px;
+            padding: 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.15);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            animation: floatUpAndDrift 10s linear infinite;
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        /* Note Card Top Pin / Header Bar */
+        .floating-note::before {
+            content: "📝 NOTE";
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: var(--neon-cyan);
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+            padding-bottom: 4px;
+        }
+
+        /* Simulated text lines inside floating note icons */
+        .note-line {
+            height: 5px;
+            background: rgba(148, 163, 184, 0.35);
+            border-radius: 3px;
+            width: 100%;
+        }
+
+        .note-line.short { width: 65%; }
+        .note-line.accent { background: rgba(236, 72, 153, 0.45); width: 80%; }
+
+        /* Individual Positions & Delays for 8 Moving Note Cards */
+        .floating-note:nth-child(1) { left: 8%;  animation-duration: 9s;  animation-delay: 0s;   transform: scale(0.85); }
+        .floating-note:nth-child(2) { left: 22%; animation-duration: 11s; animation-delay: 1.5s; transform: scale(1.05); border-color: rgba(236, 72, 153, 0.45); }
+        .floating-note:nth-child(3) { left: 38%; animation-duration: 8.5s;animation-delay: 3s;   transform: scale(0.75); }
+        .floating-note:nth-child(4) { left: 62%; animation-duration: 10s; animation-delay: 0.5s; transform: scale(0.95); }
+        .floating-note:nth-child(5) { left: 78%; animation-duration: 12s; animation-delay: 2.2s; transform: scale(1.1);  border-color: rgba(139, 92, 246, 0.5); }
+        .floating-note:nth-child(6) { left: 88%; animation-duration: 9.5s;animation-delay: 4s;   transform: scale(0.8); }
+        .floating-note:nth-child(7) { left: 14%; animation-duration: 10.5s;animation-delay: 5s;  transform: scale(0.9); }
+        .floating-note:nth-child(8) { left: 70%; animation-duration: 8.8s;animation-delay: 6s;   transform: scale(0.85); border-color: rgba(236, 72, 153, 0.45); }
+
+        @keyframes floatUpAndDrift {
+            0% {
+                top: 110%;
+                opacity: 0;
+                transform: translateY(0) rotate(-12deg) scale(0.8);
+            }
+            15% {
+                opacity: 0.75;
+            }
+            50% {
+                transform: translateY(-50vh) rotate(8deg) scale(1);
+            }
+            85% {
+                opacity: 0.75;
+            }
+            100% {
+                top: -20%;
+                opacity: 0;
+                transform: translateY(-100vh) rotate(-8deg) scale(0.85);
+            }
+        }
+
+        /* When Enter is clicked, all notes converge into the center! */
+        .notes-stage.converge .floating-note {
+            animation-play-state: paused;
+            top: 50% !important;
+            left: 50% !important;
+            opacity: 0 !important;
+            transform: translate(-50%, -50%) scale(0.1) rotate(180deg) !important;
+        }
+
+        /* =========================================
+           CENTRAL WELCOME CARD & APP NAME
+           ========================================= */
+        .welcome-container {
+            text-align: center;
+            max-width: 650px;
+            padding: 3rem 2.5rem;
+            background: rgba(3, 7, 18, 0.78);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+            opacity: 0;
+            animation: revealWelcomeBox 1.1s 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes revealWelcomeBox {
+            0% { opacity: 0; transform: scale(0.85) translateY(35px); filter: blur(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        /* Animated Floating Central Note Icon */
+        .central-note-icon {
+            width: 82px;
+            height: 98px;
+            background: linear-gradient(145deg, rgba(56, 189, 248, 0.2), rgba(236, 72, 153, 0.2));
+            border: 2px solid var(--neon-cyan);
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 9px;
+            box-shadow: 0 0 25px var(--neon-cyan-glow);
+            animation: hoverPulse 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .central-note-icon .bar {
+            height: 6px;
+            background: #fff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        .central-note-icon .bar.w1 { width: 55%; background: var(--neon-cyan); }
+        .central-note-icon .bar.w2 { width: 100%; }
+        .central-note-icon .bar.w3 { width: 85%; }
+        .central-note-icon .bar.w4 { width: 70%; background: var(--neon-magenta); }
+
+        @keyframes hoverPulse {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); box-shadow: 0 12px 30px var(--neon-cyan-glow); }
+        }
+
+        .welcome-badge {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.35em;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+            display: inline-block;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 1; text-shadow: 0 0 12px var(--neon-cyan); }
+        }
+
+        .welcome-title {
+            font-size: 3.1rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            color: #fff;
+            text-shadow: 0 0 20px var(--neon-cyan-glow), 0 0 40px rgba(56, 189, 248, 0.3);
+            margin-bottom: 0.9rem;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-muted);
+            font-size: 0.98rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 480px;
+        }
+
+        .btn-enter {
+            padding: 1rem 2.6rem;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            color: #030712;
+            background: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 25px var(--neon-cyan-glow);
+            transition: all 0.25s ease;
+        }
+
+        .btn-enter:hover {
+            background: #fff;
+            border-color: #fff;
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 0 35px #fff, 0 0 50px var(--neon-cyan);
+        }
+
+        /* Loader Bar */
+        .loader-wrapper {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 1.2rem auto;
+        }
+
+        .loader-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            padding: 1px;
+            overflow: hidden;
+        }
+
+        .loader-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+            box-shadow: 0 0 12px var(--neon-cyan-glow);
+            transition: width 0.4s ease;
+        }
+
+        .boot-log {
+            margin-top: 0.7rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.12em;
+            color: var(--neon-cyan);
+        }
+
+        .warp-out {
+            animation: zoomToDashboard 0.6s ease-in forwards !important;
+        }
+
+        @keyframes zoomToDashboard {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.8); filter: blur(10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Moving Holographic Notes Stream -->
+    <div class="notes-stage" id="notes-stage">
+        <div class="floating-note"><div class="note-line short"></div><div class="note-line"></div><div class="note-line accent"></div><div class="note-line"></div></div>
+        <div class="floating-note"><div class="note-line accent"></div><div class="note-line"></div><div class="note-line short"></div><div class="note-line"></div></div>
+        <div class="floating-note"><div class="note-line"></div><div class="note-line short"></div><div class="note-line"></div><div class="note-line accent"></div></div>
+        <div class="floating-note"><div class="note-line short"></div><div class="note-line accent"></div><div class="note-line"></div><div class="note-line short"></div></div>
+        <div class="floating-note"><div class="note-line"></div><div class="note-line"></div><div class="note-line short"></div><div class="note-line accent"></div></div>
+        <div class="floating-note"><div class="note-line accent"></div><div class="note-line short"></div><div class="note-line"></div><div class="note-line"></div></div>
+        <div class="floating-note"><div class="note-line short"></div><div class="note-line"></div><div class="note-line"></div><div class="note-line short"></div></div>
+        <div class="floating-note"><div class="note-line"></div><div class="note-line accent"></div><div class="note-line short"></div><div class="note-line"></div></div>
+    </div>
+
+    <!-- Center Welcome Hub -->
+    <div class="welcome-container" id="welcome-box">
+        <!-- Animated Note Graphic -->
+        <div class="central-note-icon" id="central-icon">
+            <div class="bar w1"></div>
+            <div class="bar w2"></div>
+            <div class="bar w3"></div>
+            <div class="bar w4"></div>
+        </div>
+
+        <span class="welcome-badge">✦ WELCOME TO ✦</span>
+        <h1 class="welcome-title">PERSONAL NOTES</h1>
+        <p class="welcome-subtitle">
+            Organize your thoughts, save important browser links, and manage your digital notes seamlessly in one place.
+        </p>
+
+        <!-- Progress Bar (Appears after clicking Enter) -->
+        <div id="loader-wrapper" class="loader-wrapper" style="display: none;">
+            <div class="loader-bar">
+                <div id="loader-fill" class="loader-fill"></div>
+            </div>
+            <div id="boot-log" class="boot-log">PERSONAL NOTES IS OPENING...</div>
+        </div>
+
+        <button type="button" id="enter-btn" class="btn-enter" onclick="launchApp()">
+            ENTER DASHBOARD &rarr;
+        </button>
+    </div>
+
+    <script>
+        // Pleasant futuristic chime on button click
+        function playChimeSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.45);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.6);
+            } catch (e) {}
+        }
+
+        // Speaks "Personal notes is opening"
+        function speakOpeningVoice() {
+            try {
+                if ("speechSynthesis" in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance("Personal notes is opening");
+                    utterance.rate = 0.95;
+                    utterance.pitch = 0.95;
+                    utterance.volume = 1;
+                    window.speechSynthesis.speak(utterance);
+                }
+            } catch (e) {}
+        }
+
+        function launchApp() {
+            document.getElementById("enter-btn").style.display = "none";
+            document.getElementById("loader-wrapper").style.display = "block";
+            
+            // Make all floating notes pull into the center core
+            document.getElementById("notes-stage").classList.add("converge");
+
+            playChimeSound();
+            speakOpeningVoice();
+
+            const logs = [
+                "PERSONAL NOTES IS OPENING...",
+                "SYNCING SAVED NOTES & LINKS...",
+                "LAUNCHING DASHBOARD..."
+            ];
+
+            let progress = 0;
+            let step = 0;
+            const fill = document.getElementById("loader-fill");
+            const logText = document.getElementById("boot-log");
+
+            const timer = setInterval(function () {
+                progress += 35;
+                if (progress > 100) progress = 100;
+                fill.style.width = progress + "%";
+
+                if (step < logs.length) {
+                    logText.textContent = logs[step];
+                    step++;
+                }
+
+                if (progress >= 100) {
+                    clearInterval(timer);
+                    document.getElementById("welcome-box").classList.add("warp-out");
+                    setTimeout(function () {
+                        if (window.location.protocol === "file:" || window.location.port === "5500") {
+                            window.location.href = "notes.html";
+                        } else {
+                            window.location.href = "/notes";
+                        }
+                    }, 550);
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
