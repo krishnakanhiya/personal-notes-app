@@ -3,88 +3,283 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyber Notes // Terminal Access</title>
+  <title>Personal Notes</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
-      background: radial-gradient(circle at center, #0b1528 0%, #030712 100%);
-      color: #38bdf8;
-      font-family: 'Courier New', Courier, monospace;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+      color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      position: relative;
     }
-    .panel {
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
-      text-align: center;
-      max-width: 500px;
+
+    /* --- Floating Notes Background Container --- */
+    .floating-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .floating-card {
+      position: absolute;
+      bottom: -180px;
+      background: rgba(30, 41, 59, 0.35);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      backdrop-filter: blur(4px);
+      border-radius: 10px;
+      padding: 14px;
+      width: 170px;
+      height: 110px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 12px rgba(56, 189, 248, 0.1);
+      animation: floatUp linear infinite;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-header-line {
+      height: 8px;
+      width: 55%;
+      background: rgba(56, 189, 248, 0.45);
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .card-body-line {
+      height: 5px;
       width: 90%;
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 3px;
     }
-    h1 {
-      font-size: 2rem;
+
+    .card-body-line.short {
+      width: 65%;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.9);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.65;
+      }
+      85% {
+        opacity: 0.65;
+      }
+      100% {
+        transform: translateY(-125vh) rotate(18deg) scale(1.05);
+        opacity: 0;
+      }
+    }
+
+    /* --- Main Center Portal --- */
+    .portal-card {
+      position: relative;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      backdrop-filter: blur(16px);
+      padding: 48px 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 50px rgba(56, 189, 248, 0.2), inset 0 0 20px rgba(56, 189, 248, 0.05);
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .portal-card:hover {
+      box-shadow: 0 0 65px rgba(56, 189, 248, 0.35), inset 0 0 25px rgba(56, 189, 248, 0.1);
+    }
+
+    .app-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-size: 0.75rem;
+      font-weight: 600;
       letter-spacing: 2px;
-      margin-bottom: 15px;
       text-transform: uppercase;
-      color: #f0f9ff;
-      text-shadow: 0 0 10px #38bdf8;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 18px;
     }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      background: linear-gradient(90deg, #ffffff, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+    }
+
     p {
       color: #94a3b8;
+      font-size: 1rem;
       line-height: 1.6;
-      margin-bottom: 30px;
-      font-size: 0.95rem;
+      margin-bottom: 32px;
     }
+
     .btn-launch {
-      display: inline-block;
-      background: #0284c7;
+      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
       color: #ffffff;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 12px 28px;
-      border-radius: 6px;
-      border: 1px solid #38bdf8;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 34px;
+      border-radius: 10px;
+      border: 1px solid #7dd3fc;
       cursor: pointer;
-      font-family: inherit;
       letter-spacing: 1px;
-      transition: all 0.2s ease-in-out;
-      box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+      transition: all 0.25s ease;
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.45);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
-    .btn-launch:hover {
-      background: #0ea5e9;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
-      transform: translateY(-2px);
+
+    .btn-launch:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 32px rgba(56, 189, 248, 0.75);
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+    }
+
+    .btn-launch:disabled {
+      opacity: 0.85;
+      cursor: wait;
+    }
+
+    /* Soundwave animation shown while audio plays */
+    .status-text {
+      margin-top: 18px;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      min-height: 20px;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .status-text.active {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
-  <div class="panel">
-    <h1>SYS // NOTES</h1>
-    <p>Voice-assisted college workflow and intelligence manager. Encrypted local records.</p>
-    <button class="btn-launch" id="enterBtn">ENTER WORKSPACE</button>
+
+  <!-- Animated Floating Notes Background -->
+  <div class="floating-bg" id="floatingBg"></div>
+
+  <!-- Center Welcome Card -->
+  <div class="portal-card">
+    <div class="app-badge">Smart Workspace</div>
+    <h1>Personal Notes</h1>
+    <p>Capture ideas, organize your daily tasks, and access your saved records from anywhere.</p>
+    <button class="btn-launch" id="enterBtn">
+      <span>Open Personal Notes</span>
+      <span>&rarr;</span>
+    </button>
+    <div class="status-text" id="statusText">🔊 Initializing workspace audio...</div>
   </div>
 
   <script>
-    document.getElementById('enterBtn').addEventListener('click', () => {
-      if ('speechSynthesis' in window) {
-        const speech = new SpeechSynthesisUtterance("Welcome to the workspace. Loading records.");
-        speech.rate = 1.0;
-        speech.pitch = 1.0;
-        window.speechSynthesis.speak(speech);
-      }
-      setTimeout(() => {
+    // 1. Generate Floating Note Cards in the Background
+    const bgContainer = document.getElementById('floatingBg');
+    const cardCount = 14;
+
+    for (let i = 0; i < cardCount; i++) {
+      const card = document.createElement('div');
+      card.className = 'floating-card';
+      
+      // Randomize position, size, speed, and delay
+      const leftPos = Math.random() * 95;
+      const duration = 10 + Math.random() * 12; // 10s to 22s
+      const delay = -(Math.random() * 20);     // Start already mid-screen
+      const scale = 0.65 + Math.random() * 0.5;
+
+      card.style.left = `${leftPos}%`;
+      card.style.animationDuration = `${duration}s`;
+      card.style.animationDelay = `${delay}s`;
+      card.style.transform = `scale(${scale})`;
+
+      card.innerHTML = `
+        <div class="card-header-line"></div>
+        <div class="card-body-line"></div>
+        <div class="card-body-line"></div>
+        <div class="card-body-line short"></div>
+      `;
+
+      bgContainer.appendChild(card);
+    }
+
+    // 2. Full Audio Playback Before Redirecting
+    const enterBtn = document.getElementById('enterBtn');
+    const statusText = document.getElementById('statusText');
+
+    enterBtn.addEventListener('click', () => {
+      enterBtn.disabled = true;
+      enterBtn.innerHTML = `<span>Launching...</span>`;
+      statusText.classList.add('active');
+
+      const navigateToNotes = () => {
         window.location.href = '/notes';
-      }, 800);
+      };
+
+      if ('speechSynthesis' in window) {
+        // Cancel any stuck speech queue first
+        window.speechSynthesis.cancel();
+
+        const message = new SpeechSynthesisUtterance(
+          "Welcome to Personal Notes. Preparing your workspace."
+        );
+        message.rate = 1.0;
+        message.pitch = 1.0;
+        message.volume = 1.0;
+
+        let redirected = false;
+        const safeRedirect = () => {
+          if (!redirected) {
+            redirected = true;
+            navigateToNotes();
+          }
+        };
+
+        // Wait until the entire sentence finishes speaking before changing page
+        message.onend = () => {
+          safeRedirect();
+        };
+
+        // If speech synthesis fails or is blocked, still navigate
+        message.onerror = () => {
+          safeRedirect();
+        };
+
+        window.speechSynthesis.speak(message);
+
+        // Fallback safety timer (6 seconds) in case browser pauses speech engine
+        setTimeout(safeRedirect, 6000);
+      } else {
+        navigateToNotes();
+      }
     });
   </script>
 </body>

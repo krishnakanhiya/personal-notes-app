@@ -3,165 +3,314 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workspace // Notes Hub</title>
+  <title>Personal Notes // Dashboard</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
-      background-color: #030712;
-      color: #e2e8f0;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
+      color: #f8fafc;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 30px 20px;
+      min-height: 100vh;
+      padding: 36px 20px;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* --- Subtle Floating Notes Background --- */
+    .floating-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .floating-card {
+      position: absolute;
+      bottom: -180px;
+      background: rgba(30, 41, 59, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      backdrop-filter: blur(2px);
+      border-radius: 10px;
+      padding: 14px;
+      width: 160px;
+      height: 100px;
+      animation: floatUp linear infinite;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-header-line {
+      height: 7px;
+      width: 55%;
+      background: rgba(56, 189, 248, 0.3);
+      border-radius: 4px;
+      margin-bottom: 3px;
+    }
+
+    .card-body-line {
+      height: 4px;
+      width: 90%;
+      background: rgba(148, 163, 184, 0.15);
+      border-radius: 3px;
+    }
+
+    .card-body-line.short {
+      width: 60%;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.9);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.45;
+      }
+      85% {
+        opacity: 0.45;
+      }
+      100% {
+        transform: translateY(-125vh) rotate(15deg) scale(1.05);
+        opacity: 0;
+      }
+    }
+
+    /* --- Main Content Container --- */
     .container {
-      max-width: 900px;
+      position: relative;
+      z-index: 10;
+      max-width: 920px;
       margin: 0 auto;
     }
+
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
-      border-bottom: 1px solid #1e293b;
-      padding-bottom: 15px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+      padding-bottom: 18px;
     }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     header h1 {
-      font-size: 1.6rem;
-      color: #38bdf8;
-      letter-spacing: 1px;
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, #ffffff, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
     }
+
+    /* --- Note Composer Card --- */
     .composer {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.1);
     }
-    .composer input, .composer textarea {
+
+    .composer input,
+    .composer textarea {
       width: 100%;
-      background: #020617;
+      background: rgba(2, 6, 23, 0.8);
       border: 1px solid #334155;
       color: #f8fafc;
-      padding: 10px 14px;
-      border-radius: 6px;
-      margin-bottom: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 14px;
       font-family: inherit;
       font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
+
     .composer textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 95px;
     }
-    .composer input:focus, .composer textarea:focus {
+
+    .composer input:focus,
+    .composer textarea:focus {
       outline: none;
       border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
     }
+
     .btn-save {
-      background: #0284c7;
+      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
       color: #ffffff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
+      border: 1px solid #7dd3fc;
+      padding: 11px 26px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
-      transition: background 0.2s;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 15px rgba(14, 165, 233, 0.35);
     }
+
     .btn-save:hover {
-      background: #0ea5e9;
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.65);
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
     }
+
+    /* --- Notes Grid & Cards --- */
     .notes-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
     }
+
     .note-card {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 18px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: border-color 0.2s;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     }
+
     .note-card:hover {
-      border-color: #38bdf8;
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.15);
     }
+
     .note-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.15rem;
+      font-weight: 700;
       color: #f1f5f9;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
+
     .note-content {
-      color: #94a3b8;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      margin-bottom: 12px;
+      color: #cbd5e1;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 14px;
       white-space: pre-wrap;
       word-break: break-word;
     }
+
     .note-url {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: #38bdf8;
       text-decoration: none;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       display: inline-block;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 500;
     }
+
+    .note-url:hover {
+      text-decoration: underline;
+    }
+
     .card-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
-      border-top: 1px solid #1e293b;
+      gap: 10px;
+      border-top: 1px solid rgba(51, 65, 85, 0.6);
       padding-top: 12px;
       margin-top: auto;
     }
+
     .btn-action {
-      background: transparent;
-      border: 1px solid #334155;
-      color: #cbd5e1;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 0.8rem;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid #475569;
+      color: #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
       cursor: pointer;
       text-decoration: none;
+      transition: all 0.2s;
     }
+
     .btn-action:hover {
       border-color: #38bdf8;
       color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
     }
+
     .btn-delete:hover {
       border-color: #ef4444;
       color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
     }
   </style>
 </head>
 <body>
+
+  <!-- Subtle Floating Notes Background -->
+  <div class="floating-bg" id="floatingBg"></div>
+
   <div class="container">
     <header>
-      <h1>WORKSPACE NOTE HUB</h1>
-      <a href="/" class="btn-action">Return to Welcome</a>
+      <div class="brand-group">
+        <h1>Personal Notes</h1>
+      </div>
+      <a href="/" class="btn-action">&larr; Welcome Screen</a>
     </header>
 
     <div class="composer">
-      <input type="text" id="noteTitle" placeholder="Note Title (e.g., Electrical Lab Viva Questions)">
-      <textarea id="noteContent" placeholder="Enter note contents or checklist..."></textarea>
-      <input type="url" id="noteUrl" placeholder="Relevant Reference Link (Optional)">
+      <input type="text" id="noteTitle" placeholder="Note Title">
+      <textarea id="noteContent" placeholder="Write your note, checklist, or reminders here..."></textarea>
+      <input type="url" id="noteUrl" placeholder="Reference Link (Optional, e.g. https://...)">
       <button class="btn-save" id="saveNoteBtn">Save Note</button>
     </div>
 
     <div class="notes-grid" id="notesGrid">
-      <!-- Notes loaded via app.js -->
+      <!-- Notes loaded dynamically via /static/js/app.js -->
     </div>
   </div>
 
+  <script>
+    // Generate subtle floating cards in the background
+    const bgContainer = document.getElementById('floatingBg');
+    for (let i = 0; i < 10; i++) {
+      const card = document.createElement('div');
+      card.className = 'floating-card';
+      card.style.left = `${Math.random() * 95}%`;
+      card.style.animationDuration = `${12 + Math.random() * 14}s`;
+      card.style.animationDelay = `${-(Math.random() * 20)}s`;
+      card.style.transform = `scale(${0.6 + Math.random() * 0.4})`;
+      card.innerHTML = `
+        <div class="card-header-line"></div>
+        <div class="card-body-line"></div>
+        <div class="card-body-line short"></div>
+      `;
+      bgContainer.appendChild(card);
+    }
+  </script>
   <script src="/static/js/app.js"></script>
 </body>
 </html>
