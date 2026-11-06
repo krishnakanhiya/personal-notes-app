@@ -1,175 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Notes // Workspace</title>
-    <style>
-        :root {
-            --bg-core: #030712;
-            --bg-card: rgba(15, 23, 42, 0.9);
-            --border-tech: rgba(56, 189, 248, 0.35);
-            --neon-cyan: #38bdf8;
-            --neon-cyan-glow: rgba(56, 189, 248, 0.5);
-            --neon-magenta: #ec4899;
-            --text-primary: #f8fafc;
-            --text-muted: #94a3b8;
-            --danger: #f43f5e;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: "Courier New", Courier, monospace, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-core);
-            background-image: 
-                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
-            background-size: 32px 32px;
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 2rem 1rem;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .workspace-header {
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border-tech);
-            padding-bottom: 1rem;
-        }
-
-        .workspace-header h1 {
-            font-size: 2.2rem;
-            color: #fff;
-            text-shadow: 0 0 12px var(--neon-cyan-glow);
-        }
-
-        .back-link {
-            color: var(--neon-cyan);
-            text-decoration: none;
-            font-size: 0.8rem;
-            display: inline-block;
-            margin-bottom: 0.5rem;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-tech);
-            padding: 1.5rem;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-        }
-
-        .form-card { margin-bottom: 2.5rem; }
-        .form-card h2 { color: var(--neon-cyan); margin-bottom: 1rem; font-size: 1.15rem; }
-        .field-group { margin-bottom: 1rem; }
-
-        input[type="text"], input[type="url"], textarea {
-            width: 100%;
-            padding: 0.85rem;
-            border: 1px solid var(--border-tech);
-            background: #030712;
-            color: #fff;
-            font-size: 0.95rem;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 12px var(--neon-cyan-glow);
-        }
-
-        .form-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
-
-        .btn {
-            padding: 0.65rem 1.3rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary { background: var(--neon-cyan); color: #030712; }
-        .btn-secondary { background: #334155; color: #fff; }
-        .btn-danger { background: var(--danger); color: #fff; padding: 0.4rem 0.8rem; font-size: 0.8rem; }
-
-        .note-link-btn {
-            display: inline-block;
-            background: rgba(236, 72, 153, 0.2);
-            color: #f472b6;
-            border: 1px solid var(--neon-magenta);
-            text-decoration: none;
-            font-size: 0.8rem;
-            padding: 0.35rem 0.7rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1.25rem;
-            margin-top: 1rem;
-        }
-
-        .note-card { display: flex; flex-direction: column; justify-content: space-between; min-height: 190px; }
-        .note-title { font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem; }
-        .note-content { color: var(--text-muted); font-size: 0.9rem; white-space: pre-wrap; margin-bottom: 1rem; flex-grow: 1; }
-        .note-meta { font-size: 0.72rem; color: #64748b; margin-bottom: 0.7rem; }
-        .note-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
-        .empty-state { text-align: center; color: var(--text-muted); padding: 3rem; border: 1px dashed var(--border-tech); margin-top: 1rem; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace // Notes Hub</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #030712;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 15px;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      color: #38bdf8;
+      letter-spacing: 1px;
+    }
+    .composer {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    .composer input, .composer textarea {
+      width: 100%;
+      background: #020617;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .composer textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .composer input:focus, .composer textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+    .btn-save {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-save:hover {
+      background: #0ea5e9;
+    }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .note-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+    .note-card:hover {
+      border-color: #38bdf8;
+    }
+    .note-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+    }
+    .note-content {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .note-url {
+      font-size: 0.8rem;
+      color: #38bdf8;
+      text-decoration: none;
+      margin-bottom: 12px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px solid #1e293b;
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    .btn-action {
+      background: transparent;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-action:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+    .btn-delete:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header class="workspace-header">
-            <a href="/" class="back-link">&larr; SYSTEM BOOT SCREEN</a>
-            <h1>PERSONAL NOTES</h1>
-            <p style="color: #94a3b8; font-size: 0.85rem;">Knowledge Base & Link Repository</p>
-        </header>
+  <div class="container">
+    <header>
+      <h1>WORKSPACE NOTE HUB</h1>
+      <a href="/" class="btn-action">Return to Welcome</a>
+    </header>
 
-        <section class="card form-card">
-            <h2 id="form-title">Create a Note</h2>
-            <form id="note-form">
-                <input type="hidden" id="note-id">
-                <div class="field-group">
-                    <input type="text" id="note-title" placeholder="Title..." required maxlength="100">
-                </div>
-                <div class="field-group">
-                    <input type="url" id="note-url" placeholder="Optional Browser URL (https://example.com)...">
-                </div>
-                <div class="field-group">
-                    <textarea id="note-content" placeholder="Write your note..." rows="4" required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" id="cancel-btn" class="btn btn-secondary" style="display:none;">Cancel</button>
-                    <button type="submit" id="submit-btn" class="btn btn-primary">Save Note</button>
-                </div>
-            </form>
-        </section>
-
-        <section>
-            <h2>All Saved Notes</h2>
-            <div id="notes-container" class="grid-container"></div>
-            <div id="empty-state" class="empty-state" style="display: none;">
-                <p>No notes saved yet. Add your first note above!</p>
-            </div>
-        </section>
+    <div class="composer">
+      <input type="text" id="noteTitle" placeholder="Note Title (e.g., Electrical Lab Viva Questions)">
+      <textarea id="noteContent" placeholder="Enter note contents or checklist..."></textarea>
+      <input type="url" id="noteUrl" placeholder="Relevant Reference Link (Optional)">
+      <button class="btn-save" id="saveNoteBtn">Save Note</button>
     </div>
 
-    <script src="/static/js/app.js"></script>
+    <div class="notes-grid" id="notesGrid">
+      <!-- Notes loaded via app.js -->
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
 </body>
 </html>

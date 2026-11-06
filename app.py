@@ -1,144 +1,136 @@
 import os
 import sqlite3
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
-DB_NAME = "notes.db"
 
+# Absolute path resolution ensures SQLite writes reliably in Render's environment
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_PATH = os.path.join(BASE_DIR, "notes.db")
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-
 def init_db():
-    with get_db_connection() as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS notes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                content TEXT NOT NULL,
-                url TEXT,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            url TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(notes)")
-        columns = [col[1] for col in cursor.fetchall()]
-        if "url" not in columns:
-            cursor.execute("ALTER TABLE notes ADD COLUMN url TEXT")
-        conn.commit()
+    ''')
+    conn.commit()
+    conn.close()
 
+# Executed at module import so Gunicorn initializes the schema before serving requests
+init_db()
 
-# Page 1: Welcome Screen
-@app.route("/")
-def welcome_page():
-    if os.path.exists(os.path.join(app.template_folder, "welcome.html")):
-        return render_template("welcome.html")
-    return render_template("index.html")
+# --- Page Routes ---
 
+@app.route('/')
+def home():
+    return render_template('welcome.html')
 
-# Page 2: Dashboard (All Notes)
-@app.route("/notes")
-@app.route("/notes.html")
+@app.route('/notes')
 def notes_page():
-    return render_template("notes.html")
+    return render_template('notes.html')
 
+@app.route('/edit/<int:note_id>')
+def edit_note_page(note_id):
+    conn = get_db_connection()
+    note = conn.execute('SELECT * FROM notes WHERE id = ?', (note_id,)).fetchone()
+    conn.close()
+    if note is None:
+        return redirect(url_for('notes_page'))
+    return render_template('edit_note.html', note=note)
 
-# Page 3: Dedicated Note Editor Page
-@app.route("/note/<int:note_id>")
-def note_editor_page(note_id):
-    return render_template("edit_note.html", note_id=note_id)
+# --- REST API Endpoints ---
 
-
-# API: Get All Notes
-@app.route("/api/notes", methods=["GET"])
+@app.route('/api/notes', methods=['GET'])
 def get_notes():
-    with get_db_connection() as conn:
-        notes = conn.execute(
-            "SELECT id, title, content, url, updated_at FROM notes ORDER BY id DESC"
-        ).fetchall()
-        return jsonify([dict(note) for note in notes]), 200
+    conn = get_db_connection()
+    notes = conn.execute('SELECT * FROM notes ORDER BY id DESC').fetchall()
+    conn.close()
+    notes_list = [dict(note) for note in notes]
+    return jsonify(notes_list), 200
 
-
-# API: Get Single Note by ID
-@app.route("/api/notes/<int:note_id>", methods=["GET"])
-def get_single_note(note_id):
-    with get_db_connection() as conn:
-        note = conn.execute(
-            "SELECT id, title, content, url, updated_at FROM notes WHERE id = ?",
-            (note_id,),
-        ).fetchone()
-        if not note:
-            return jsonify({"error": "Note not found"}), 404
-        return jsonify(dict(note)), 200
-
-
-# API: Create Note
-@app.route("/api/notes", methods=["POST"])
+@app.route('/api/notes', methods=['POST'])
 def create_note():
     data = request.get_json()
-    if not data or not data.get("title") or not data.get("content"):
-        return jsonify({"error": "Title and content required"}), 400
+    if not data or not data.get('title') or not data.get('content'):
+        return jsonify({'error': 'Title and content are required'}), 400
 
-    title = data["title"].strip()
-    content = data["content"].strip()
-    url = data.get("url", "").strip() or None
+    title = data.get('title').strip()
+    content = data.get('content').strip()
+    url = data.get('url', '').strip()
 
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO notes (title, content, url, updated_at) VALUES (?, ?, ?, datetime('now', 'localtime'))",
-            (title, content, url),
-        )
-        conn.commit()
-        new_note = conn.execute(
-            "SELECT * FROM notes WHERE id = ?", (cursor.lastrowid,)
-        ).fetchone()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        'INSERT INTO notes (title, content, url) VALUES (?, ?, ?)',
+        (title, content, url)
+    )
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
 
-    return jsonify(dict(new_note)), 201
+    return jsonify({'id': new_id, 'message': 'Note created successfully'}), 201
 
+@app.route('/api/notes/<int:note_id>', methods=['GET'])
+def get_single_note(note_id):
+    conn = get_db_connection()
+    note = conn.execute('SELECT * FROM notes WHERE id = ?', (note_id,)).fetchone()
+    conn.close()
+    if note is None:
+        return jsonify({'error': 'Note not found'}), 404
+    return jsonify(dict(note)), 200
 
-# API: Update Note
-@app.route("/api/notes/<int:note_id>", methods=["PUT"])
+@app.route('/api/notes/<int:note_id>', methods=['PUT'])
 def update_note(note_id):
     data = request.get_json()
-    title = data.get("title", "").strip()
-    content = data.get("content", "").strip()
-    url = data.get("url", "").strip() or None
+    if not data or not data.get('title') or not data.get('content'):
+        return jsonify({'error': 'Title and content are required'}), 400
 
-    if not title or not content:
-        return jsonify({"error": "Title and content required"}), 400
+    title = data.get('title').strip()
+    content = data.get('content').strip()
+    url = data.get('url', '').strip()
 
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "UPDATE notes SET title=?, content=?, url=?, updated_at=datetime('now', 'localtime') WHERE id=?",
-            (title, content, url, note_id),
-        )
-        conn.commit()
-        if cursor.rowcount == 0:
-            return jsonify({"error": "Note not found"}), 404
-        updated = conn.execute("SELECT * FROM notes WHERE id=?", (note_id,)).fetchone()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        'UPDATE notes SET title = ?, content = ?, url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        (title, content, url, note_id)
+    )
+    conn.commit()
+    updated_rows = cursor.rowcount
+    conn.close()
 
-    return jsonify(dict(updated)), 200
+    if updated_rows == 0:
+        return jsonify({'error': 'Note not found'}), 404
 
+    return jsonify({'message': 'Note updated successfully'}), 200
 
-# API: Delete Note
-@app.route("/api/notes/<int:note_id>", methods=["DELETE"])
+@app.route('/api/notes/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM notes WHERE id=?", (note_id,))
-        conn.commit()
-        if cursor.rowcount == 0:
-            return jsonify({"error": "Note not found"}), 404
-    return jsonify({"message": "Deleted"}), 200
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM notes WHERE id = ?', (note_id,))
+    conn.commit()
+    deleted_rows = cursor.rowcount
+    conn.close()
 
+    if deleted_rows == 0:
+        return jsonify({'error': 'Note not found'}), 404
 
-if __name__ == "__main__":
-    init_db()
-    app.run(debug=True, port=5000)
+    return jsonify({'message': 'Note deleted successfully'}), 200
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)

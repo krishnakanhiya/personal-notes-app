@@ -1,339 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Notes // Editor</title>
-    <style>
-        :root {
-            --bg-core: #030712;
-            --bg-card: rgba(15, 23, 42, 0.9);
-            --border-tech: rgba(56, 189, 248, 0.35);
-            --neon-cyan: #38bdf8;
-            --neon-cyan-glow: rgba(56, 189, 248, 0.5);
-            --neon-magenta: #ec4899;
-            --text-primary: #f8fafc;
-            --text-muted: #94a3b8;
-            --danger: #f43f5e;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: "Courier New", Courier, monospace, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-core);
-            background-image: 
-                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
-            background-size: 32px 32px;
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 2.5rem 1rem;
-        }
-
-        .container {
-            max-width: 950px;
-            margin: 0 auto;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-tech);
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .nav-btn {
-            color: var(--neon-cyan);
-            text-decoration: none;
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-            display: inline-flex;
-            align-items: center;
-            font-weight: 700;
-        }
-
-        .nav-btn:hover {
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-
-        .meta-tag {
-            font-size: 0.75rem;
-            color: #64748b;
-            letter-spacing: 0.1em;
-        }
-
-        .editor-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-tech);
-            padding: 2rem;
-            border-radius: 6px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-        }
-
-        .field-group {
-            margin-bottom: 1.4rem;
-        }
-
-        label {
-            display: block;
-            color: var(--neon-cyan);
-            font-size: 0.8rem;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        input[type="text"], input[type="url"], textarea {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid var(--border-tech);
-            background: #030712;
-            color: #fff;
-            font-size: 1rem;
-            border-radius: 4px;
-            transition: all 0.25s ease;
-        }
-
-        textarea {
-            min-height: 320px;
-            line-height: 1.6;
-            resize: vertical;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 15px var(--neon-cyan-glow);
-        }
-
-        .actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.8rem;
-        }
-
-        .btn {
-            padding: 0.8rem 1.6rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-save {
-            background: var(--neon-cyan);
-            color: #030712;
-            box-shadow: 0 0 15px var(--neon-cyan-glow);
-        }
-
-        .btn-save:hover {
-            background: #fff;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: rgba(244, 63, 94, 0.2);
-            color: #fda4af;
-            border: 1px solid rgba(244, 63, 94, 0.5);
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
-        }
-
-        .btn-link-preview {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(236, 72, 153, 0.18);
-            color: #f472b6;
-            border: 1px solid var(--neon-magenta);
-            text-decoration: none;
-            font-size: 0.85rem;
-            padding: 0.6rem 1rem;
-            border-radius: 4px;
-        }
-
-        .btn-link-preview:hover {
-            background: var(--neon-magenta);
-            color: #fff;
-        }
-
-        .status-msg {
-            color: var(--neon-cyan);
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Record // Workspace</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #030712;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .edit-box {
+      max-width: 600px;
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 25px;
+    }
+    h2 {
+      color: #38bdf8;
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+    input, textarea {
+      width: 100%;
+      background: #020617;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-family: inherit;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-confirm {
+      background: #0284c7;
+      color: #fff;
+    }
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #94a3b8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
-    <!-- Store note_id safely in data attribute -->
-    <div class="container" id="editor-container" data-id="{{ note_id }}">
-        <header class="editor-header">
-            <a href="/notes" class="nav-btn">&larr; BACK TO ALL NOTES</a>
-            <span class="meta-tag" id="last-updated">FETCHING METADATA...</span>
-        </header>
-
-        <section class="editor-card">
-            <form id="editor-form">
-                <div class="field-group">
-                    <label for="edit-title">// NOTE TITLE</label>
-                    <input type="text" id="edit-title" required maxlength="120" placeholder="Enter title...">
-                </div>
-
-                <div class="field-group">
-                    <label for="edit-url">// REFERENCE URL</label>
-                    <div style="display: flex; gap: 0.8rem; align-items: center;">
-                        <input type="url" id="edit-url" placeholder="https://example.com...">
-                        <a href="#" id="preview-url-btn" target="_blank" rel="noopener noreferrer" class="btn-link-preview" style="display: none; white-space: nowrap;">🔗 Open Link</a>
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <label for="edit-content">// NOTE CONTENT</label>
-                    <textarea id="edit-content" required placeholder="Type notes, code, thoughts..."></textarea>
-                </div>
-
-                <div class="actions-bar">
-                    <span id="save-status" class="status-msg">CHANGES SAVED SUCCESSFULLY</span>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-danger" onclick="deleteCurrentNote()">DELETE NOTE</button>
-                        <button type="submit" class="btn btn-save">SAVE CHANGES</button>
-                    </div>
-                </div>
-            </form>
-        </section>
+  <div class="edit-box">
+    <h2>EDIT RECORD</h2>
+    <input type="hidden" id="editNoteId" value="{{ note['id'] }}">
+    <input type="text" id="editTitle" value="{{ note['title'] }}" required>
+    <textarea id="editContent" required>{{ note['content'] }}</textarea>
+    <input type="url" id="editUrl" value="{{ note['url'] or '' }}" placeholder="Reference URL">
+    <div class="actions">
+      <a href="/notes" class="btn btn-cancel">Cancel</a>
+      <button class="btn btn-confirm" id="updateBtn">Update Record</button>
     </div>
+  </div>
 
-    <script>
-        // Extract note ID safely from data attribute OR url path
-        function getNoteId() {
-            const container = document.getElementById("editor-container");
-            const attrId = container.getAttribute("data-id");
-            if (attrId && attrId.trim() !== "" && !isNaN(attrId)) {
-                return attrId.trim();
-            }
-            const pathSegments = window.location.pathname.split("/").filter(Boolean);
-            return pathSegments[pathSegments.length - 1];
-        }
+  <script>
+    document.getElementById('updateBtn').addEventListener('click', async () => {
+      const id = document.getElementById('editNoteId').value;
+      const title = document.getElementById('editTitle').value.trim();
+      const content = document.getElementById('editContent').value.trim();
+      const url = document.getElementById('editUrl').value.trim();
 
-        const noteId = getNoteId();
-        const titleInput = document.getElementById("edit-title");
-        const urlInput = document.getElementById("edit-url");
-        const contentInput = document.getElementById("edit-content");
-        const updatedLabel = document.getElementById("last-updated");
-        const previewUrlBtn = document.getElementById("preview-url-btn");
-        const saveStatus = document.getElementById("save-status");
+      if (!title || !content) {
+        alert('Title and content cannot be blank.');
+        return;
+      }
 
-        // Fetch note content on page load
-        document.addEventListener("DOMContentLoaded", async () => {
-            if (!noteId) {
-                alert("Invalid Note ID");
-                window.location.href = "/notes";
-                return;
-            }
+      const res = await fetch(`/api/notes/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, url })
+      });
 
-            try {
-                const res = await fetch(`/api/notes/${noteId}`);
-                if (!res.ok) throw new Error("Note record could not be loaded");
-                const note = await res.json();
-
-                titleInput.value = note.title || "";
-                contentInput.value = note.content || "";
-                urlInput.value = note.url || "";
-                updatedLabel.textContent = `LAST MODIFIED: ${note.updated_at || "N/A"}`;
-
-                updateUrlPreview(note.url);
-            } catch (err) {
-                alert(err.message);
-                window.location.href = "/notes";
-            }
-        });
-
-        urlInput.addEventListener("input", (e) => {
-            updateUrlPreview(e.target.value.trim());
-        });
-
-        function updateUrlPreview(rawUrl) {
-            if (rawUrl && rawUrl.trim() !== "") {
-                const formatted = (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) 
-                    ? rawUrl 
-                    : `https://${rawUrl}`;
-                previewUrlBtn.href = formatted;
-                previewUrlBtn.style.display = "inline-flex";
-            } else {
-                previewUrlBtn.style.display = "none";
-            }
-        }
-
-        // Save changes via PUT
-        document.getElementById("editor-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const payload = {
-                title: titleInput.value.trim(),
-                url: urlInput.value.trim(),
-                content: contentInput.value.trim()
-            };
-
-            try {
-                const res = await fetch(`/api/notes/${noteId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!res.ok) throw new Error("Failed to save changes");
-                const updated = await res.json();
-                updatedLabel.textContent = `LAST MODIFIED: ${updated.updated_at}`;
-
-                saveStatus.style.display = "inline";
-                setTimeout(() => { saveStatus.style.display = "none"; }, 2500);
-            } catch (err) {
-                alert(err.message);
-            }
-        });
-
-        // Delete note via DELETE
-        async function deleteCurrentNote() {
-            if (!confirm("Are you sure you want to permanently delete this note?")) return;
-
-            try {
-                const res = await fetch(`/api/notes/${noteId}`, { method: "DELETE" });
-                if (!res.ok) throw new Error("Delete failed");
-                window.location.href = "/notes";
-            } catch (err) {
-                alert(err.message);
-            }
-        }
-    </script>
+      if (res.ok) {
+        window.location.href = '/notes';
+      } else {
+        alert('Failed to update note.');
+      }
+    });
+  </script>
 </body>
 </html>

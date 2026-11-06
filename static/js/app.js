@@ -1,123 +1,111 @@
-const noteForm = document.getElementById("note-form");
-const noteTitleInput = document.getElementById("note-title");
-const noteUrlInput = document.getElementById("note-url");
-const noteContentInput = document.getElementById("note-content");
-const notesContainer = document.getElementById("notes-container");
-const emptyState = document.getElementById("empty-state");
+document.addEventListener('DOMContentLoaded', () => {
+  const notesGrid = document.getElementById('notesGrid');
+  const saveNoteBtn = document.getElementById('saveNoteBtn');
+  const noteTitle = document.getElementById('noteTitle');
+  const noteContent = document.getElementById('noteContent');
+  const noteUrl = document.getElementById('noteUrl');
 
-document.addEventListener("DOMContentLoaded", fetchNotes);
-
-async function fetchNotes() {
-    if (!notesContainer) return;
+  // Load all notes from backend
+  async function fetchNotes() {
     try {
-        const res = await fetch("/api/notes");
-        const notes = await res.json();
-        renderNotes(notes);
+      const res = await fetch('/api/notes');
+      if (!res.ok) throw new Error('Network error fetching notes');
+      const notes = await res.json();
+      renderNotes(notes);
     } catch (err) {
-        console.error("Failed to load notes:", err);
+      console.error(err);
+      notesGrid.innerHTML = `<p style="color:#ef4444;">Unable to load records from database.</p>`;
     }
-}
+  }
 
-function renderNotes(notes) {
-    notesContainer.innerHTML = "";
+  // Render cards to grid
+  function renderNotes(notes) {
+    notesGrid.innerHTML = '';
     if (notes.length === 0) {
-        emptyState.style.display = "block";
-        return;
+      notesGrid.innerHTML = `<p style="color:#64748b; grid-column: 1/-1;">No notes recorded yet. Add your first note above.</p>`;
+      return;
     }
-    emptyState.style.display = "none";
 
     notes.forEach(note => {
-        const card = document.createElement("div");
-        card.className = "card note-card";
-        card.style.cursor = "pointer";
+      const card = document.createElement('div');
+      card.className = 'note-card';
 
-        // Clicking anywhere on the card opens its separate editor page
-        card.addEventListener("click", (e) => {
-            // Prevent opening editor if they specifically clicked the URL link button or Delete button
-            if (e.target.closest(".note-link-btn") || e.target.closest(".btn-danger")) {
-                return;
-            }
-            window.location.href = `/note/${note.id}`;
-        });
+      const urlBadge = note.url 
+        ? `<a href="${note.url}" target="_blank" rel="noopener noreferrer" class="note-url">🔗 Reference Link</a>` 
+        : '';
 
-        let linkHtml = "";
-        if (note.url) {
-            const formattedUrl = note.url.startsWith("http://") || note.url.startsWith("https://") 
-                ? note.url 
-                : `https://${note.url}`;
-            linkHtml = `
-                <div>
-                    <a href="${escapeHtml(formattedUrl)}" target="_blank" rel="noopener noreferrer" class="note-link-btn" onclick="event.stopPropagation();">
-                        🔗 Open Link
-                    </a>
-                </div>
-            `;
-        }
+      card.innerHTML = `
+        <div>
+          <div class="note-title">${escapeHtml(note.title)}</div>
+          <div class="note-content">${escapeHtml(note.content)}</div>
+          ${urlBadge}
+        </div>
+        <div class="card-actions">
+          <a href="/edit/${note.id}" class="btn-action">Edit</a>
+          <button class="btn-action btn-delete" data-id="${note.id}">Delete</button>
+        </div>
+      `;
 
-        card.innerHTML = `
-            <div>
-                <h3 class="note-title">${escapeHtml(note.title)}</h3>
-                ${linkHtml}
-                <p class="note-content">${escapeHtml(note.content)}</p>
-            </div>
-            <div>
-                <div class="note-meta">TIMESTAMP: ${note.updated_at}</div>
-                <div class="note-actions">
-                    <span style="font-size: 0.75rem; color: var(--neon-cyan); margin-right: auto; align-self: center;">CLICK CARD TO EDIT &rarr;</span>
-                    <button class="btn btn-danger" onclick="event.stopPropagation(); deleteNote(${note.id})">Delete</button>
-                </div>
-            </div>
-        `;
-        notesContainer.appendChild(card);
+      card.querySelector('.btn-delete').addEventListener('click', () => deleteNote(note.id));
+      notesGrid.appendChild(card);
     });
-}
+  }
 
-// Add new note from the Dashboard form
-if (noteForm) {
-    noteForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const title = noteTitleInput.value.trim();
-        const url = noteUrlInput.value.trim();
-        const content = noteContentInput.value.trim();
+  // Create new note
+  saveNoteBtn.addEventListener('click', async () => {
+    const title = noteTitle.value.trim();
+    const content = noteContent.value.trim();
+    const url = noteUrl.value.trim();
 
-        if (!title || !content) return;
-
-        const payload = { title, content, url };
-
-        try {
-            const res = await fetch("/api/notes", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) throw new Error("Create failed");
-
-            // Clear inputs
-            noteTitleInput.value = "";
-            noteUrlInput.value = "";
-            noteContentInput.value = "";
-            fetchNotes();
-        } catch (err) {
-            alert(err.message);
-        }
-    });
-}
-
-// Quick delete directly from Dashboard
-async function deleteNote(id) {
-    if (!confirm("Are you sure you want to delete this note?")) return;
+    if (!title || !content) {
+      alert('Please fill out both the title and content fields.');
+      return;
+    }
 
     try {
-        const res = await fetch(`/api/notes/${id}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("Delete failed");
-        fetchNotes();
-    } catch (err) {
-        alert(err.message);
-    }
-}
+      const res = await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, url })
+      });
 
-function escapeHtml(str) {
-    return str.replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[m]));
-}
+      if (res.ok) {
+        noteTitle.value = '';
+        noteContent.value = '';
+        noteUrl.value = '';
+        fetchNotes();
+      } else {
+        alert('Database save failed. Check server logs.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Server communication error.');
+    }
+  });
+
+  // Delete note
+  async function deleteNote(id) {
+    if (!confirm('Are you sure you want to delete this note?')) return;
+
+    try {
+      const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchNotes();
+      } else {
+        alert('Could not delete note.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Prevent XSS injection in notes
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.innerText = str;
+    return div.innerHTML;
+  }
+
+  // Initial fetch
+  fetchNotes();
+});
